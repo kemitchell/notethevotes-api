@@ -1,90 +1,94 @@
 /* jshint mocha: true */
 var supertest = require('supertest');
+var sinon = require('sinon');
 var async = require('async');
 var app = require('../');
 var database = require('../source/database');
 
 var PATH = '/users/';
-
-var email = 'john@doe.com';
+var EMAIL = 'john@doe.com';
 
 var makeUser = function() {
-  return {
-    first: 'John',
-    last: 'Doe',
-    password: '1234'
-  };
+  return { first: 'John', last: 'Doe', password: '1234' };
+};
+
+var without = function(object, property) {
+  delete object[property];
+  return object;
 };
 
 describe('/users/:email', function() {
   describe('POST', function() {
-    // Clean the database.
-    beforeEach(function(done) {
-      database.getClient(function(error, client) {
-        client.query('TRUNCATE TABLE users RESTART IDENTITY', done);
-      });
+    beforeEach(function() {
+      this.sandbox = sinon.sandbox.create();
+    });
+
+    afterEach(function() {
+      this.sandbox.restore();
     });
 
     it('requires a JSON request body', function(done) {
       supertest(app)
-        .post(PATH + email)
+        .post(PATH + EMAIL)
         .expect(400)
         .expect('Accept', /json/)
         .end(done);
     });
 
     it('requires a first name', function(done) {
-      var body = makeUser();
-      delete body.first;
+      var body = without(makeUser(), 'first');
       supertest(app)
-        .post(PATH + email)
+        .post(PATH + EMAIL)
         .send(body)
         .expect(400)
         .end(done);
     });
 
     it('requires a last name', function(done) {
-      var body = makeUser();
-      delete body.last;
       supertest(app)
-        .post(PATH + email)
-        .send(body)
+        .post(PATH + EMAIL)
+        .send(without(makeUser(), 'last'))
         .expect(400)
         .end(done);
     });
 
     it('requires a password', function(done) {
-      var body = makeUser();
-      delete body.password;
       supertest(app)
-        .post(PATH + email)
-        .send(body)
+        .post(PATH + EMAIL)
+        .send(without(makeUser(), 'password'))
         .expect(400)
         .end(done);
     });
 
     it('responds 201 to a valid request', function(done) {
+      this.sandbox.stub(database, 'insertUser').yields(null);
+
       supertest(app)
-        .post(PATH + email)
+        .post(PATH + EMAIL)
         .send(makeUser())
         .expect(201)
         .end(done);
     });
 
     it('responds 409 if an account already exists', function(done) {
-      var body = makeUser();
+      var error = new Error();
+      error.sqlState = '23505';
+      this.sandbox.stub(database, 'insertUser')
+        .onCall(0).yields(null)
+        .onCall(1).yields(error);
 
+      var body = makeUser();
       async.series([
         function(next) {
           supertest(app)
-            .post(PATH + email)
+            .post(PATH + EMAIL)
             .send(body)
             .expect(201)
             .end(next);
         },
         function(next) {
           supertest(app)
-            .post(PATH + email)
+            .post(PATH + EMAIL)
             .send(body)
             .expect(409)
             .end(next);
