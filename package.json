@@ -28,11 +28,12 @@
     "node": "0.10.x"
   },
   "scripts": {
-    "travis-ci": "npm run pre-commit",
-    "pre-commit": "npm run lint && npm run test",
     "lint": "jshint . && jscs source/ migrations/ test/",
+    "migrate": "migrate",
+    "pre-commit": "npm run lint && npm run test",
     "start": "node index.js",
     "test": "mocha",
-    "test-integration": "migrate && TEST_INTEGRATION=true mocha"
+    "test-integration": "migrate && TEST_INTEGRATION=true mocha",
+    "travis-ci": "npm run pre-commit"
   }
 }
