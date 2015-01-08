@@ -1,0 +1,23 @@
+{
+  "name": "notethevotes",
+  "version": "0.0.1",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "author": "Kyle Mitchell <kyle@kemitchell.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0",
+    "supertest": "^0.15.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.10.1",
+    "express": "^4.10.7"
+  },
+  "scripts": {
+    "travis-ci": "npm test",
+	  "start": "node index.js",
+	  "test": "mocha"
+  }
+}
