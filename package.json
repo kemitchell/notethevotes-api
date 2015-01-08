@@ -2,18 +2,12 @@
   "name": "notethevotes-api",
   "version": "0.0.1",
   "private": true,
-  "description": "",
+  "description": "API server for Note the Votes",
   "main": "source/index.js",
   "author": "Kyle Mitchell <kyle@kemitchell.com>",
   "license": "Apache-2.0",
-  "devDependencies": {
-    "async": "^0.9.0",
-    "chai": "^1.10.0",
-    "jscs": "^1.9.0",
-    "jshint": "^2.5.11",
-    "mocha": "^2.1.0",
-    "sinon": "^1.12.2",
-    "supertest": "^0.15.0"
+  "engines": {
+    "node": "0.10.x"
   },
   "dependencies": {
     "bcrypt": "^0.8.0",
@@ -24,16 +18,22 @@
     "pg": "^4.1.1",
     "pg-native": "^1.7.3"
   },
-  "engines": {
-    "node": "0.10.x"
+  "devDependencies": {
+    "async": "^0.9.0",
+    "chai": "^1.10.0",
+    "jscs": "^1.9.0",
+    "jshint": "^2.5.11",
+    "mocha": "^2.1.0",
+    "sinon": "^1.12.2",
+    "supertest": "^0.15.0"
   },
   "scripts": {
     "lint": "jshint . && jscs source/ migrations/ test/",
     "migrate": "migrate",
     "pre-commit": "npm run lint && npm run test",
-    "start": "node index.js",
+    "start": "node source/index.js",
     "test": "mocha",
-    "test-integration": "migrate && TEST_INTEGRATION=true mocha",
+    "test-integration": "npm run migrate && TEST_INTEGRATION=true mocha",
     "travis-ci": "npm run pre-commit && npm run test-integration"
   }
 }

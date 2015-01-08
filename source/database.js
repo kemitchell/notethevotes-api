@@ -4,7 +4,7 @@ var pg = require('pg').native;
 
 var getClient = exports.getClient = function(callback) {
   var URL = process.env.DATABASE_URL ||
-    'postgres://notethevotes:notethevotes@localhost:5433/notethevotes';
+    'postgres://notethevotes@localhost:5433/notethevotes';
   pg.connect(URL, callback);
 };
 
