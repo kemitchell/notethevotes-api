@@ -7,15 +7,21 @@
   "author": "Kyle Mitchell <kyle@kemitchell.com>",
   "license": "Apache-2.0",
   "devDependencies": {
+    "async": "^0.9.0",
     "chai": "^1.10.0",
     "jscs": "^1.9.0",
     "jshint": "^2.5.11",
     "mocha": "^2.1.0",
+    "sinon": "^1.12.2",
     "supertest": "^0.15.0"
   },
   "dependencies": {
+    "bcrypt": "^0.8.0",
     "body-parser": "^1.10.1",
-    "express": "^4.10.7"
+    "express": "^4.10.7",
+    "migrate": "^0.2.0",
+    "pg": "^4.1.1",
+    "pg-native": "^1.7.3"
   },
   "engines": {
     "node": "0.10.x"
@@ -23,7 +29,7 @@
   "scripts": {
     "travis-ci": "npm run pre-commit",
     "pre-commit": "npm run lint && npm run test",
-    "lint": "jshint . && jscs source/ test/",
+    "lint": "jshint . && jscs source/ migrations/ test/",
     "start": "node index.js",
     "test": "mocha"
   }
