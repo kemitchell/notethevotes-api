@@ -1,6 +1,9 @@
 /* jshint mocha: true */
+var INTEGRATION = Boolean(process.env.TEST_INTEGRATION);
 var supertest = require('supertest');
-var sinon = require('sinon');
+if (!INTEGRATION) {
+  var sinon = require('sinon');
+}
 var async = require('async');
 var app = require('../');
 var database = require('../source/database');
@@ -11,13 +14,24 @@ var PASSWORD = 'badpassword';
 
 describe(PATH, function() {
   describe('POST', function() {
-    beforeEach(function() {
-      this.sandbox = sinon.sandbox.create();
-    });
+    if (INTEGRATION) {
+      var doQuery = require('../source/doQuery');
 
-    afterEach(function() {
-      this.sandbox.restore();
-    });
+      beforeEach(function(done) {
+        async.parallel([
+          doQuery.bind(this, 'TRUNCATE TABLE users RESTART IDENTITY'),
+          doQuery.bind(this, 'TRUNCATE TABLE reports RESTART IDENTITY')
+        ], done);
+      });
+    } else {
+      beforeEach(function() {
+        this.sandbox = sinon.sandbox.create();
+      });
+
+      afterEach(function() {
+        this.sandbox.restore();
+      });
+    }
 
     it('requires HTTP Basic authentication', function(done) {
       supertest(app)
@@ -27,8 +41,10 @@ describe(PATH, function() {
     });
 
     it('requires valid HTTP Basic authentication', function(done) {
-      this.sandbox.stub(database, 'authenticateUser')
-        .yields(null, false);
+      if (!INTEGRATION) {
+        this.sandbox.stub(database, 'authenticateUser')
+          .yields(null, false);
+      }
 
       supertest(app)
         .post(PATH)
@@ -38,10 +54,12 @@ describe(PATH, function() {
     });
 
     it('accepts valid HTTP Basic authentication', function(done) {
-      this.sandbox.stub(database, 'insertUser')
-        .yields(null);
-      this.sandbox.stub(database, 'authenticateUser')
-        .yields(null, true);
+      if (!INTEGRATION) {
+        this.sandbox.stub(database, 'insertUser')
+          .yields(null);
+        this.sandbox.stub(database, 'authenticateUser')
+          .yields(null, true);
+      }
 
       async.series([
         function(next) {

@@ -45,7 +45,7 @@ app.post('/users/:email', function(request, response) {
 // POST /reports/
 // --------------
 
-var authMiddleware = require('./basic-auth');
+var authMiddleware = require('./basicAuthMiddleware');
 
 var send401 = function(response) {
   response.header('WWW-Authenticate', 'Basic realm=' + meta.name);

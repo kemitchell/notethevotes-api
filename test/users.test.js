@@ -1,6 +1,10 @@
 /* jshint mocha: true */
+var INTEGRATION = Boolean(process.env.TEST_INTEGRATION);
+
 var supertest = require('supertest');
-var sinon = require('sinon');
+if (!INTEGRATION) {
+  var sinon = require('sinon');
+}
 var async = require('async');
 var app = require('../');
 var database = require('../source/database');
@@ -19,13 +23,24 @@ var without = function(object, property) {
 
 describe('/users/:email', function() {
   describe('POST', function() {
-    beforeEach(function() {
-      this.sandbox = sinon.sandbox.create();
-    });
+    if (INTEGRATION) {
+      var doQuery = require('../source/doQuery');
 
-    afterEach(function() {
-      this.sandbox.restore();
-    });
+      beforeEach(function(done) {
+        async.parallel([
+          doQuery.bind(this, 'TRUNCATE TABLE users RESTART IDENTITY'),
+          doQuery.bind(this, 'TRUNCATE TABLE reports RESTART IDENTITY')
+        ], done);
+      });
+    } else {
+      beforeEach(function() {
+        this.sandbox = sinon.sandbox.create();
+      });
+
+      afterEach(function() {
+        this.sandbox.restore();
+      });
+    }
 
     it('requires a JSON request body', function(done) {
       supertest(app)
@@ -69,7 +84,9 @@ describe('/users/:email', function() {
     });
 
     it('responds 201 to a valid request', function(done) {
-      this.sandbox.stub(database, 'insertUser').yields(null);
+      if (!INTEGRATION) {
+        this.sandbox.stub(database, 'insertUser').yields(null);
+      }
 
       supertest(app)
         .post(PATH + EMAIL)
@@ -79,11 +96,13 @@ describe('/users/:email', function() {
     });
 
     it('responds 409 if an account already exists', function(done) {
-      var error = new Error();
-      error.sqlState = '23505';
-      this.sandbox.stub(database, 'insertUser')
-        .onCall(0).yields(null)
-        .onCall(1).yields(error);
+      if (!INTEGRATION) {
+        var error = new Error();
+        error.sqlState = '23505';
+        this.sandbox.stub(database, 'insertUser')
+          .onCall(0).yields(null)
+          .onCall(1).yields(error);
+      }
 
       var body = makeUser();
       async.series([

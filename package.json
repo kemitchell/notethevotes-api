@@ -32,6 +32,7 @@
     "pre-commit": "npm run lint && npm run test",
     "lint": "jshint . && jscs source/ migrations/ test/",
     "start": "node index.js",
-    "test": "mocha"
+    "test": "mocha",
+    "test-integration": "migrate && TEST_INTEGRATION=true mocha"
   }
 }

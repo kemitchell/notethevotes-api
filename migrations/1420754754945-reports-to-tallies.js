@@ -1,29 +1,20 @@
-var database = require('../source/database');
+var doQuery = require('../source/doQuery');
+var async = require('async');
 
-var doQuery = function(query) {
-  return function(done) {
-    database(function(error, client) {
-      if (error) {
-        done(error);
-      } else {
-        client.query(query, function(error) {
-          done(error || null);
-        });
-      }
-    });
-  };
+exports.up = function(done) {
+  async.series([
+    doQuery.bind(
+      this, 'ALTER TABLE reports RENAME COLUMN race TO election'
+    ),
+    doQuery.bind(this, 'ALTER TABLE reports RENAME TO tallies')
+  ], done);
 };
 
-exports.up = doQuery(
-  'BEGIN;' +
-  'ALTER TABLE reports RENAME COLUMN race TO election;' +
-  'ALTER TABLE reports RENAME TO tallies;' +
-  'COMMIT;'
-);
-
-exports.down = doQuery(
-  'BEGIN;' +
-  'ALTER TABLE tallies RENAME TO reports;' +
-  'ALTER TABLE reports RENAME COLUMN election TO race;' +
-  'COMMIT;'
-);
+exports.down = function(done) {
+  async.series([
+    doQuery.bind(this, 'ALTER TABLE tallies RENAME TO reports'),
+    doQuery.bind(
+      this, 'ALTER TABLE reports RENAME COLUMN election TO race'
+    )
+  ], done);
+};

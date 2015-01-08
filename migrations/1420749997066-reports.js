@@ -1,20 +1,7 @@
-var database = require('../source/database');
+var doQuery = require('../source/doQuery');
 
-var doQuery = function(query) {
-  return function(done) {
-    database(function(error, client) {
-      if (error) {
-        done(error);
-      } else {
-        client.query(query, function(error) {
-          done(error || null);
-        });
-      }
-    });
-  };
-};
-
-exports.up = doQuery(
+exports.up = doQuery.bind(
+  this,
   'CREATE TABLE reports (' +
   '  id SERIAL PRIMARY KEY,' +
   '  email TEXT NOT NULL,' +
@@ -27,4 +14,4 @@ exports.up = doQuery(
   ')'
 );
 
-exports.down = doQuery('DROP DATABASE reports');
+exports.down = doQuery.bind(this, 'DROP DATABASE reports');
