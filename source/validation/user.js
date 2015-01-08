@@ -1,25 +1,12 @@
-var isString = function(x) {
-  return typeof x === 'string';
-};
+var Joi = require('joi');
 
-var notEmpty = function(x) {
-  return x.length > 0;
-};
-
-var hasNonEmptyString = function(object, key) {
-  if (!object.hasOwnProperty(key)) {
-    return false;
-  }
-  var value = object[key];
-  return isString(value) && notEmpty(value);
-};
+var schema = Joi.object().keys({
+  first: Joi.string().min(3),
+  last: Joi.string().min(3),
+  email: Joi.string().email(),
+  password: Joi.string().min(5)
+}).requiredKeys('first', 'last', 'email', 'password');
 
 module.exports = function(input) {
-  var type = typeof input;
-  return type === 'object' &&
-    Boolean(input) &&
-    hasNonEmptyString(input, 'first') &&
-    hasNonEmptyString(input, 'last') &&
-    hasNonEmptyString(input, 'email') &&
-    hasNonEmptyString(input, 'password');
+  return Joi.validate(input, schema).error === null;
 };

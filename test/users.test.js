@@ -9,7 +9,7 @@ var PATH = '/users/';
 var EMAIL = 'john@doe.com';
 
 var makeUser = function() {
-  return { first: 'John', last: 'Doe', password: '1234' };
+  return { first: 'John', last: 'Doe', password: '123456' };
 };
 
 var without = function(object, property) {
@@ -56,6 +56,14 @@ describe('/users/:email', function() {
       supertest(app)
         .post(PATH + EMAIL)
         .send(without(makeUser(), 'password'))
+        .expect(400)
+        .end(done);
+    });
+
+    it('requires a valid email address', function(done) {
+      supertest(app)
+        .post(PATH + 'not an email address')
+        .send(makeUser())
         .expect(400)
         .end(done);
     });

@@ -60,13 +60,14 @@ app.post('/reports/', authMiddleware, function(request, response) {
   } else {
     var report = request.body;
     if (!validReport(report)) {
+      response.header('Accept', 'application/json');
       response.sendStatus(400);
     } else {
-      database.insertReport(report, function(error) {
+      database.insertReport(request.user, report, function(error) {
         if (error) {
-          response.send(500);
+          response.sendStatus(500);
         } else {
-          response.send(201);
+          response.sendStatus(201);
         }
       });
     }
