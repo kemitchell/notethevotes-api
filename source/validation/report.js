@@ -3,11 +3,12 @@ var Joi = require('joi');
 var schema = Joi.object()
   .keys({
     precinct: Joi.number().integer().min(1),
-    results: Joi.array().min(1).includes(
-      // Race or proposition object.
+    elections: Joi.array().min(1).includes(
+      // Race or proposition.
       Joi.object().keys({
-        race: Joi.string().min(3),
-        results: Joi.array().min(1).includes(
+        name: Joi.string().min(3),
+        // e.g. "Governor", "Proposition 43"
+        tallies: Joi.array().min(1).includes(
           Joi.object()
             .keys({
               // Candidate name, "yes", or "no".
@@ -18,10 +19,10 @@ var schema = Joi.object()
             .requiredKeys('option', 'votes')
         )
       })
-      .requiredKeys('race', 'results')
+      .requiredKeys('name', 'tallies')
     )
   })
-  .requiredKeys('precinct', 'results');
+  .requiredKeys('precinct', 'elections');
 
 module.exports = function(input) {
   return Joi.validate(input, schema).error === null;

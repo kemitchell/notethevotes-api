@@ -69,12 +69,16 @@ exports.insertUser = (function() {
 
 exports.insertReport = (function() {
   var insertRow =
-    function(client, email, time, precinct, race, option, votes, back) {
+    function(
+      client, email, time,
+      precinct, election, option, votes,
+      back
+    ) {
       client.query(
         'INSERT INTO reports ' +
-        '(email, precinct, race, option, votes, time) ' +
+        '(email, precinct, election, option, votes, time) ' +
         'VALUES ' + placeholdersToX(6),
-        [ email, precinct, race, option, votes, time ],
+        [ email, precinct, election, option, votes, time ],
         back
       );
     };
@@ -88,12 +92,12 @@ exports.insertReport = (function() {
         releaseClient();
         callback(error);
       } else {
-        async.map(body.results, function(raceObject, next) {
-          var race = raceObject.race;
-          async.map(raceObject.results, function(result, next) {
+        async.map(body.elections, function(electionObject, next) {
+          var election = electionObject.name;
+          async.map(electionObject.tallies, function(tally, next) {
             insertRow(
-              email, time, precinct, race,
-              result.option, result.votes,
+              email, time, precinct, election,
+              tally.option, tally.votes,
               next
             );
           }, next);
