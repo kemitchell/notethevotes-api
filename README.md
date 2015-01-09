@@ -1,5 +1,5 @@
-Note the Vote API Server
-========================
+Note the Votes API Server
+=========================
 
 [![build status](https://img.shields.io/travis/sfbrigade/notethevotes-api.svg)](http://travis-ci.org/sfbrigade/notethevotes-api)
 
