@@ -1,0 +1,10 @@
+{
+  "name": "Note the Votes API Server",
+  "description": "Back-end API server for Note the Votes",
+  "website": "https://github.com/sfbrigade/notethevotes-api",
+  "repository": "https://github.com/sfbrigade/notethevotes-api.git",
+  "success_url": "/",
+  "addons": [
+    "heroku-postgresql:hobby-dev"
+  ]
+}
