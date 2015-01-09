@@ -65,6 +65,7 @@ app.post('/reports/', authMiddleware, function(request, response) {
     } else {
       database.insertReport(request.user, report, function(error) {
         if (error) {
+          console.error(error);
           response.sendStatus(500);
         } else {
           response.sendStatus(201);
@@ -72,6 +73,13 @@ app.post('/reports/', authMiddleware, function(request, response) {
       });
     }
   }
+});
+
+// GET /reports/precincts/:precinct
+// --------------------------------
+
+app.get('/reports/precincts/:number', function(request, response) {
+  response.sendStatus(200);
 });
 
 if (module.parent) {

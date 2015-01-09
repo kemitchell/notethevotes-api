@@ -77,31 +77,36 @@ exports.insertReport = (function() {
       client.query(
         'INSERT INTO reports ' +
         '(email, precinct, election, option, votes, time) ' +
-        'VALUES ' + placeholdersToX(6),
-        [ email, precinct, election, option, votes, time ],
+        'VALUES (' + placeholdersToX(6) + ')',
+        [ email, precinct, election, option, votes, time.toString() ],
         back
       );
     };
 
   return function(email, body, callback) {
-    var time = new Date().getTime();
-    var precinct = body.precint;
+    var time = new Date().toUTCString();
+    var precinct = body.precinct;
 
     getClient(function(error, client, releaseClient) {
       if (error) {
         releaseClient();
         callback(error);
       } else {
-        async.map(body.elections, function(electionObject, next) {
-          var election = electionObject.name;
-          async.map(electionObject.tallies, function(tally, next) {
-            insertRow(
-              email, time, precinct, election,
-              tally.option, tally.votes,
-              next
-            );
-          }, next);
-        }, function(error) {
+        async.series([
+          client.query.bind(client, 'BEGIN'),
+          function(allDone) {
+            async.map(body.elections, function(election, nextElection) {
+              var electionName = election.name;
+              async.map(election.tallies, function(tally, nextTally) {
+                insertRow(
+                  client, email, time, precinct, electionName,
+                  tally.option, tally.votes,
+                  nextTally
+                );
+              }, nextElection);
+            }, allDone);
+          }
+        ], function(error) {
           if (error) {
             client.query('ROLLBACK', function(rollbackError) {
               releaseClient(rollbackError);

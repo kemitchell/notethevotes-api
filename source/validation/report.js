@@ -6,13 +6,13 @@ var schema = Joi.object()
     elections: Joi.array().min(1).includes(
       // Race or proposition.
       Joi.object().keys({
-        name: Joi.string().min(3),
+        name: Joi.string().min(1),
         // e.g. "Governor", "Proposition 43"
         tallies: Joi.array().min(1).includes(
           Joi.object()
             .keys({
               // Candidate name, "yes", or "no".
-              option: Joi.string().min(3),
+              option: Joi.string().min(1),
               // The number of votes in favor.
               votes: Joi.number().integer().min(0)
             })
